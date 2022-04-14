@@ -1,5 +1,25 @@
+from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
+
+
+class CustomUserManager(BaseUserManager):
+	def create_user(self, email, password=None, team=None, **kwargs):
+		if not email:
+			raise ValueError("You must enter an email.")
+
+		user = self.model(email=self.normalize_email(email), team=team)
+		user.set_password(password)
+		if user.team == "Admin":
+			user.is_staff = True
+		user.save()
+		return user
+
+	def create_superuser(self, email, password=None, team=None):
+		user = self.create_user(email=email, password=password, team="Admin")
+		user.is_staff = True
+		user.save()
+		return user
 
 
 class Member(AbstractBaseUser):
@@ -13,14 +33,21 @@ class Member(AbstractBaseUser):
 	email = models.EmailField(unique=True, max_length=255, blank=False)
 	is_active = models.BooleanField(default=True)
 	is_staff = models.BooleanField(default=False)
-	team = models.CharField(choices=TEAM, max_length=64)
+	team = models.CharField(choices=TEAM, max_length=64, blank=False)
 
 	USERNAME_FIELD = "email"
 	REQUIRED_FIELDS = ["team"]
 
-	def save(self, *args, **kwargs):
+	objects = CustomUserManager()
+
+	def has_perm(self, perm, obj=None):
+		return True
+
+	def has_module_perms(self, perm, obj=None):
+		return True
+
+	def clean(self):
 		if self.team == "Admin":
 			self.is_staff = True
-		super().save(*args, **kwargs)
-
+		super().clean()
 
