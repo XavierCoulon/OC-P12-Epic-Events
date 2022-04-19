@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from crm.models import Contract, Event, Customer
+from crm.models import Contract, Event, Customer, EventStatus
 
 
 @admin.register(Customer)
@@ -12,7 +12,6 @@ class CustomerAdmin(admin.ModelAdmin):
 		"email",
 		"phone",
 		"mobile",
-		"status",
 		"date_created",
 		"date_updated",
 		"sales_contact",
@@ -36,11 +35,18 @@ class EventAdmin(admin.ModelAdmin):
 	list_display = (
 		"contract",
 		"support_contact",
-		"amount",
 		"date",
 		"status",
 		"attendees",
 		"notes",
 		"date_created",
 		"date_updated",
+	)
+
+
+@admin.register(EventStatus)
+class EventStatusAdmin(admin.ModelAdmin):
+	list_display = (
+		"id",
+		"status",
 	)

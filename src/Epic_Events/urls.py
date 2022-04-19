@@ -16,13 +16,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
+from rest_framework_simplejwt.views import (TokenObtainPairView, TokenRefreshView)
 
-from crm.views import CustomerViewset
+from crm.views import CustomerViewset, ContractViewset, EventViewset
 
 router = routers.SimpleRouter()
 router.register("customers", CustomerViewset, basename="customers")
+router.register("contracts", ContractViewset, basename="contracts")
+router.register("events", EventViewset, basename="events")
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/login/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/", include(router.urls))
 ]

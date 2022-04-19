@@ -10,8 +10,6 @@ class CustomUserManager(BaseUserManager):
 
 		user = self.model(email=self.normalize_email(email), team=team)
 		user.set_password(password)
-		if user.team == "Admin":
-			user.is_staff = True
 		user.save()
 		return user
 
@@ -46,8 +44,8 @@ class Member(AbstractBaseUser):
 	def has_module_perms(self, perm, obj=None):
 		return True
 
-	def clean(self):
-		if self.team == "Admin":
+	def save(self):
+		if self.team == "A":
 			self.is_staff = True
-		super().clean()
+		super().save()
 
