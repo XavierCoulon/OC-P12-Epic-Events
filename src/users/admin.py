@@ -1,11 +1,10 @@
 from django.contrib import admin
 from django import forms
 from django.contrib import messages
-from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.admin import UserAdmin
-
+from rest_framework.permissions import DjangoModelPermissions
 
 from users.models import Member
 
@@ -18,7 +17,7 @@ class MemberCreationForm(forms.ModelForm):
 
     class Meta:
         model = Member
-        fields = ('email', 'team', 'is_active', 'is_staff')
+        fields = ('email', 'password', 'team', 'is_active', 'is_staff', 'groups')
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -46,7 +45,7 @@ class MemberChangeForm(forms.ModelForm):
 
     class Meta:
         model = Member
-        fields = ('email', 'password', 'team', 'is_active', 'is_staff')
+        fields = ('email', 'password', 'team', 'is_active', 'is_staff', 'groups')
 
 
 @admin.register(Member)
@@ -58,7 +57,7 @@ class MemberAdmin(UserAdmin):
     form = MemberChangeForm
     add_form = MemberCreationForm
 
-    fieldsets = ((None, {"fields": ("email", "password", "team")}),)
+    fieldsets = ((None, {"fields": ("email", "password", "team", "groups", "user_permissions")}),)
     add_fieldsets = (
         (
             None,
@@ -71,8 +70,8 @@ class MemberAdmin(UserAdmin):
     list_display = ('email', 'team', 'is_active', 'is_staff')
 
     ordering = ()
-    list_filter = ()
-    filter_horizontal = ()
+    #list_filter = ()
+    filter_horizontal = ('groups', 'user_permissions')
 
     def save_model(self, request, obj, form, change):
         if obj.team == "A" and not obj.is_staff:

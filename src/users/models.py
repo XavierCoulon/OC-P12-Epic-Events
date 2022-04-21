@@ -1,5 +1,5 @@
 from django.contrib.auth.base_user import BaseUserManager
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 
 
@@ -20,7 +20,7 @@ class CustomUserManager(BaseUserManager):
 		return user
 
 
-class Member(AbstractBaseUser):
+class Member(AbstractBaseUser, PermissionsMixin):
 
 	TEAM = [
 		("P", "Support"),
@@ -39,12 +39,13 @@ class Member(AbstractBaseUser):
 	objects = CustomUserManager()
 
 	def has_perm(self, perm, obj=None):
+		print(f"from has_perm / model: {perm}")
 		return True
 
 	def has_module_perms(self, perm, obj=None):
 		return True
 
-	def save(self):
+	def save(self, *args, **kwargs):
 		if self.team == "A":
 			self.is_staff = True
 		super().save()
